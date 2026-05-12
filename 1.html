@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورقة عمل تفاعلية - مسرد المصطلحات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/tajawal@5.0.16/index.min.css">
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 20px auto;
+            padding: 15mm;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .a4-page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+                padding: 10mm;
+                height: auto;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #print-results {
+                display: block !important;
+            }
+            .btn-option, .btn-answer, .match-item {
+                pointer-events: none;
+            }
+            .interactive-input, .student-input {
+                border-bottom: 1px solid #000 !important;
+                color: #000 !important;
+            }
+            .question-box {
+                border-right: 4px solid #333 !important;
+            }
+        }
+
+        .btn-option {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-option:hover {
+            transform: scale(1.02);
+            border-color: #059669;
+        }
+
+        .btn-option.active {
+            background-color: #ecfdf5;
+            border-color: #059669;
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .btn-option.correct {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #16a34a !important;
+        }
+
+        .btn-option.wrong {
+            background-color: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #dc2626 !important;
+        }
+
+        .match-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.75rem;
+            position: relative;
+        }
+
+        .match-item:hover:not(.matched) {
+            transform: scale(1.02);
+            border-color: #3b82f6;
+        }
+
+        .match-item.selected {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .match-item.matched {
+            background-color: #dcfce7;
+            border-color: #16a34a;
+            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+            cursor: default;
+        }
+
+        .match-item.matched::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background: #16a34a;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .match-item.wrong {
+            background-color: #fee2e2;
+            border-color: #dc2626;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .question-box {
+            border-right: 4px solid #059669;
+            transition: all 0.3s ease;
+        }
+
+        .mcq-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .interactive-input {
+            border: none;
+            border-bottom: 2px dashed #a7f3d0;
+            background: transparent;
+            text-align: center;
+            font-weight: bold;
+            color: #059669;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 100%;
+            max-width: 150px;
+            display: inline-block;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .interactive-input:focus {
+            border-bottom-color: #059669;
+        }
+
+        .student-input {
+            border: none;
+            border-bottom: 2px solid #cbd5e1;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            padding: 0.25rem 0;
+            font-family: 'Tajawal', sans-serif;
+            text-align: right;
+            font-weight: 500;
+            transition: border-color 0.3s;
+        }
+
+        .student-input:focus {
+            border-bottom-color: #059669;
+            border-bottom-width: 3px;
+        }
+
+        .btn-check-match {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-check-match:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Print Button -->
+    <div class="fixed bottom-5 left-5 z-50 no-print">
+        <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            طباعة الورقة
+        </button>
+    </div>
+
+    <!-- A4 Page Container -->
+    <div class="a4-page">
+        
+        <!-- Header Section -->
+        <header class="mb-5 text-center border-b-2 border-emerald-600 pb-4">
+            <h1 class="text-2xl font-bold text-emerald-700 mb-1">ورقة عمل تفاعلية: مسرد المصطلحات</h1>
+            <div class="flex gap-6 text-sm font-semibold text-gray-600 justify-center mb-4">
+                <span>المادة: العلوم</span>
+                <span>الفصل الدراسي: الثاني</span>
+                <span>العام: 1447 هـ</span>
+            </div>
+
+            <!-- Student Data Grid -->
+            <div class="bg-gray-50 rounded-lg p-3 grid grid-cols-3 gap-6 border border-gray-200 mx-auto max-w-4xl mb-3">
+                <div>
+                    <label class="block text-sm font-bold text-emerald-600 mb-1">اسم الطالب:</label>
+                    <input type="text" class="student-input placeholder:text-gray-400" placeholder="اكتب اسمك هنا...">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-emerald-600 mb-1">الصف:</label>
+                    <input type="text" class="student-input placeholder:text-gray-400" placeholder="حدد الصف...">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-emerald-600 mb-1">الفصل:</label>
+                    <input type="text" class="student-input placeholder:text-gray-400" placeholder="حدد الفصل...">
+                </div>
+            </div>
+            
+            <!-- Teacher Name -->
+            <div class="mt-1">
+                <p class="text-base font-bold text-gray-800">إعداد المعلم: محمد عندوس القحطاني</p>
+            </div>
+        </header>
+
+        <!-- Questions Body -->
+        <main class="flex-grow space-y-4">
+
+            <!-- Section 1: True/False Interactive -->
+            <section class="bg-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-sm">1</div>
+                    <h2 class="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-1 w-full">أسئلة الصح والخطأ</h2>
+                </div>
+                
+                <div class="space-y-2" id="tf-questions">
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg question-box text-sm" data-answer="false">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600 font-bold">1.</span>
+                            <p class="font-medium">التيار المستمر (DC) يتغير اتجاهه بشكل دوري منتظم.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn-answer btn-correct px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'true')">صح</button>
+                            <button class="btn-answer btn-wrong px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'false')">خطأ</button>
+                            <span class="feedback-icon text-sm"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg question-box text-sm" data-answer="true">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600 font-bold">2.</span>
+                            <p class="font-medium">وحدة قياس شدة التيار الكهربائي هي الأمبير (A).</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn-answer btn-correct px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'true')">صح</button>
+                            <button class="btn-answer btn-wrong px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'false')">خطأ</button>
+                            <span class="feedback-icon text-sm"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg question-box text-sm" data-answer="true">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600 font-bold">3.</span>
+                            <p class="font-medium">الجهد الكهربائي يقاس بوحدة الفولت (V).</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn-answer btn-correct px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'true')">صح</button>
+                            <button class="btn-answer btn-wrong px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'false')">خطأ</button>
+                            <span class="feedback-icon text-sm"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg question-box text-sm" data-answer="true">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600 font-bold">4.</span>
+                            <p class="font-medium">المقاومة الكهربائية تعبر عن مدى صعوبة مرور التيار.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn-answer btn-correct px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'true')">صح</button>
+                            <button class="btn-answer btn-wrong px-3 py-1 rounded-lg text-xs" onclick="checkTF(this, 'false')">خطأ</button>
+                            <span class="feedback-icon text-sm"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Multiple Choice Interactive -->
+            <section class="bg-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-sm">2</div>
+                    <h2 class="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-1 w-full">أسئلة الاختيار من متعدد</h2>
+                </div>
+                
+                <div class="space-y-3" id="mcq-questions">
+                    <div class="p-3 bg-gray-50 rounded-lg border-r-4 border-blue-500" data-correct="2">
+                        <p class="text-sm font-medium mb-2">1. ما هي وحدة قياس المقاومة الكهربائية؟</p>
+                        <div class="mcq-container">
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 1)">أمبير (A)</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 2)">أوم (Ω)</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 3)">فولت (V)</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 4)">واط (W)</button>
+                        </div>
+                        <span class="feedback-icon text-sm inline-block mt-1"></span>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg border-r-4 border-blue-500" data-correct="1">
+                        <p class="text-sm font-medium mb-2">2. الجهاز المستخدم لقياس فرق الجهد في الدائرة هو:</p>
+                        <div class="mcq-container">
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 1)">الفولتميتر</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 2)">الأميتر</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 3)">الأوممتر</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 4)">الواطميتر</button>
+                        </div>
+                        <span class="feedback-icon text-sm inline-block mt-1"></span>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg border-r-4 border-blue-500" data-correct="3">
+                        <p class="text-sm font-medium mb-2">3. التيار المتردد (AC) يختلف عن التيار المستمر في أنه:</p>
+                        <div class="mcq-container">
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 1)">ثابت الاتجاه</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 2)">لا يتغير</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 3)">يتغير اتجاهه دورياً</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 4)">أضعف دائماً</button>
+                        </div>
+                        <span class="feedback-icon text-sm inline-block mt-1"></span>
+                    </div>
+
+                    <div class="p-3 bg-gray-50 rounded-lg border-r-4 border-blue-500" data-correct="2">
+                        <p class="text-sm font-medium mb-2">4. قانون أوم يربط بين:</p>
+                        <div class="mcq-container">
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 1)">القدرة والزمن</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 2)">الجهد والتيار والمقاومة</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 3)">الكتلة والسرعة</button>
+                            <button class="btn-option text-xs" onclick="checkMCQ(this, 4)">الشحنة والزمن</button>
+                        </div>
+                        <span class="feedback-icon text-sm inline-block mt-1"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Matching Interactive -->
+            <section class="bg-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-sm">3</div>
+                    <h2 class="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-1 w-full">أسئلة الربط بين المصطلحات وتعريفاتها</h2>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 mb-2 text-center">اضغط على المصطلح ثم اضغط على التعريف المناسب له - الاختيار ثابت بعد التأكيد</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2" id="terms-column">
+                            <div class="match-item text-sm text-center font-medium bg-white" data-term="1" onclick="selectTerm(this)">
+                                <span class="text-emerald-600 font-bold ml-2">أ.</span>التيار المستمر (DC)
+                            </div>
+                            <div class="match-item text-sm text-center font-medium bg-white" data-term="2" onclick="selectTerm(this)">
+                                <span class="text-emerald-600 font-bold ml-2">ب.</span>الأوممتر
+                            </div>
+                            <div class="match-item text-sm text-center font-medium bg-white" data-term="3" onclick="selectTerm(this)">
+                                <span class="text-emerald-600 font-bold ml-2">ج.</span>الموصل
+                            </div>
+                            <div class="match-item text-sm text-center font-medium bg-white" data-term="4" onclick="selectTerm(this)">
+                                <span class="text-emerald-600 font-bold ml-2">د.</span>قانون أوم
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2" id="definitions-column">
+                            <div class="match-item text-xs text-center bg-white" data-def="3" onclick="selectDef(this)">مادة تسمح بمرور التيار الكهربائي بسهولة</div>
+                            <div class="match-item text-xs text-center bg-white" data-def="1" onclick="selectDef(this)">تيار يتدفق في اتجاه واحد ثابت</div>
+                            <div class="match-item text-xs text-center bg-white" data-def="4" onclick="selectDef(this)">V = I × R</div>
+                            <div class="match-item text-xs text-center bg-white" data-def="2" onclick="selectDef(this)">جهاز يقيس المقاومة الكهربائية</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center mt-3 gap-2 no-print">
+                        <button id="btn-confirm" class="btn-check-match bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded text-xs flex items-center gap-1" onclick="confirmMatch()" style="display: none;">
+                            تأكيد الربط
+                        </button>
+                        <button id="btn-cancel" class="btn-check-match bg-gray-400 hover:bg-gray-500 text-white font-bold py-1 px-4 rounded text-xs flex items-center gap-1" onclick="cancelSelection()" style="display: none;">
+                            إلغاء
+                        </button>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="match-feedback" class="text-sm font-medium"></span>
+                        <span id="match-status" class="text-xs text-gray-500 mr-2"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Fill in the Blanks with Inputs -->
+            <section class="bg-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-bold text-sm">4</div>
+                    <h2 class="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-1 w-full">أكمل الفراغات التالية</h2>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                    <div class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm">
+                        <p class="leading-8">1. الجهاز المستخدم لقياس فرق الجهد يسمى <input type="text" class="interactive-input" placeholder=".........................."> .</p>
+                    </div>
+                    <div class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm">
+                        <p class="leading-8">2. القانون الذي يربط بين الجهد والتيار والمقاومة هو قانون <input type="text" class="interactive-input" placeholder=".........................."> .</p>
+                    </div>
+                    <div class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm">
+                        <p class="leading-8">3. التيار المتردد (AC) يستخدم غالباً في <input type="text" class="interactive-input" placeholder=".........................."> المنزلية.</p>
+                    </div>
+                    <div class="p-3 border border-gray-200 rounded-lg bg-gray-50 text-sm">
+                        <p class="leading-8">4. وحدة قياس شدة التيار هي <input type="text" class="interactive-input" placeholder=".........................."> .</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Print Results Section (Hidden on Screen, Visible on Print) -->
+        <div id="print-results" class="hidden mt-4 pt-4 border-t-2 border-dashed border-gray-400">
+            <div class="grid grid-cols-3 gap-4 text-sm mb-3 bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                <div><span class="font-bold text-emerald-800">الدرجة الحاصل عليها:</span> <span id="print-score-val" class="text-xl font-bold">--</span>/12</div>
+                <div><span class="font-bold text-emerald-800">نسبة النجاح:</span> <span id="print-percent" class="text-xl font-bold">--</span>%</div>
+                <div><span class="font-bold text-emerald-800">اسم الطالب:</span> <span id="print-student-name" class="text-sm"></span></div>
+            </div>
+            
+            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <h4 class="font-bold text-gray-800 text-sm mb-2 border-b border-gray-300 pb-1">إجابات أكمل الفراغات (مفتاح التصحيح):</h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <span class="bg-white px-2 py-1 rounded border border-gray-200">1. الفولتميتر</span>
+                    <span class="bg-white px-2 py-1 rounded border border-gray-200">2. أوم (Ω)</span>
+                    <span class="bg-white px-2 py-1 rounded border border-gray-200">3. الدوائر الكهربائية</span>
+                    <span class="bg-white px-2 py-1 rounded border border-gray-200">4. الأمبير (A)</span>
+                </div>
+            </div>
+            
+            <div class="mt-2 text-xs text-gray-500 text-center border-t border-gray-200 pt-2">
+                <p>مفتاح الإجابة العام: الصح والخطأ (1.خطأ 2.صح 3.صح 4.صح) | اختيار من متعدد (1.ب 2.أ 3.ج 4.ب) | الربط (أ←2، ب←4، ج←3، د←1)</p>
+                <p class="mt-1 font-bold">إعداد المعلم: محمد عندوس القحطاني</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-4 pt-2 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500 no-print">
+            <div><p>التوفيق والنجاح...</p></div>
+            <div class="text-center"><p>الصفحة 1 من 1</p></div>
+            <div class="text-left"><p>2025 - 1447 هـ</p></div>
+        </footer>
+
+    </div>
+
+    <script>
+        let correctCount = 0;
+        let totalQuestions = 12;
+        let answeredTF = new Set();
+        let answeredMCQ = new Set();
+        let matchedPairs = new Set();
+        let selectedTerm = null;
+        let selectedTermElement = null;
+        let selectedDef = null;
+        let selectedDefElement = null;
+
+        function checkTF(button, selectedAnswer) {
+            const questionBox = button.closest('.question-box');
+            const correctAnswer = questionBox.dataset.answer;
+            const questionNumber = Array.from(document.querySelectorAll('.question-box')).indexOf(questionBox) + 1;
+            const iconElement = button.parentElement.querySelector('.feedback-icon');
+            const buttons = questionBox.querySelectorAll('.btn-answer');
+            
+            if (answeredTF.has(questionNumber)) return;
+            answeredTF.add(questionNumber);
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const isCorrect = selectedAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                button.classList.add('active', 'correct');
+                iconElement.innerHTML = '✅';
+                iconElement.classList.add('show');
+                questionBox.classList.add('bg-green-50');
+                correctCount++;
+            } else {
+                button.classList.add('active', 'wrong');
+                iconElement.innerHTML = '❌';
+                iconElement.classList.add('show');
+                questionBox.classList.add('bg-red-50');
+                buttons.forEach(btn => {
+                    const btnAnswer = btn.getAttribute('onclick').includes("'true'") ? 'true' : 'false';
+                    if (btnAnswer === correctAnswer) setTimeout(() => btn.classList.add('correct'), 300);
+                });
+            }
+            updateScore();
+        }
+
+        function checkMCQ(button, optionNumber) {
+            const questionBox = button.closest('[data-correct]');
+            const correctOption = parseInt(questionBox.dataset.correct);
+            const questionNumber = Array.from(document.querySelectorAll('[data-correct]')).indexOf(questionBox) + 1;
+            const iconElement = questionBox.querySelector('.feedback-icon');
+            const buttons = questionBox.querySelectorAll('.btn-option');
+            
+            if (answeredMCQ.has(questionNumber)) return;
+            answeredMCQ.add(questionNumber);
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            const isCorrect = optionNumber === correctOption;
+            
+            if (isCorrect) {
+                button.classList.add('active', 'correct');
+                iconElement.innerHTML = '✅ إجابة صحيحة';
+                iconElement.classList.add('show', 'text-green-600');
+                questionBox.classList.add('bg-green-50');
+                correctCount++;
+            } else {
+                button.classList.add('active', 'wrong');
+                iconElement.innerHTML = '❌ إجابة خاطئة';
+                iconElement.classList.add('show', 'text-red-600');
+                questionBox.classList.add('bg-red-50');
+                buttons.forEach((btn, index) => {
+                    if (index + 1 === correctOption) setTimeout(() => btn.classList.add('correct'), 300);
+                });
+            }
+            updateScore();
+        }
+
+        function selectTerm(element) {
+            if (element.classList.contains('matched')) return;
+            document.querySelectorAll('#terms-column .match-item').forEach(item => { if (!item.classList.contains('matched')) item.classList.remove('selected'); });
+            element.classList.add('selected');
+            selectedTerm = element.dataset.term;
+            selectedTermElement = element;
+            if (selectedTerm && selectedDef) {
+                document.getElementById('btn-confirm').style.display = 'flex';
+                document.getElementById('btn-cancel').style.display = 'flex';
+            }
+            updateMatchStatus();
+        }
+
+        function selectDef(element) {
+            if (element.classList.contains('matched')) return;
+            document.querySelectorAll('#definitions-column .match-item').forEach(item => { if (!item.classList.contains('matched')) item.classList.remove('selected'); });
+            element.classList.add('selected');
+            selectedDef = element.dataset.def;
+            selectedDefElement = element;
+            if (selectedTerm && selectedDef) {
+                document.getElementById('btn-confirm').style.display = 'flex';
+                document.getElementById('btn-cancel').style.display = 'flex';
+            }
+            updateMatchStatus();
+        }
+
+        function updateMatchStatus() {
+            const status = document.getElementById('match-status');
+            if (selectedTerm && selectedDef) {
+                status.textContent = `تم اختيار: "${selectedTermElement.textContent.trim()}" ← "${selectedDefElement.textContent.trim()}"`;
+                status.className = 'text-xs text-blue-600 mr-2';
+            } else if (selectedTerm) {
+                status.textContent = `اختر التعريف المناسب لـ "${selectedTermElement.textContent.trim()}"`;
+                status.className = 'text-xs text-amber-600 mr-2';
+            } else {
+                status.textContent = '';
+            }
+        }
+
+        function confirmMatch() {
+            if (!selectedTerm || !selectedDef) return;
+            const feedback = document.getElementById('match-feedback');
+            
+            if (selectedTerm === selectedDef) {
+                selectedTermElement.classList.remove('selected');
+                selectedTermElement.classList.add('matched');
+                selectedTermElement.onclick = null;
+                selectedDefElement.classList.remove('selected');
+                selectedDefElement.classList.add('matched');
+                selectedDefElement.onclick = null;
+                
+                feedback.innerHTML = '<span class="text-green-600 font-bold">✅ تطابق صحيح! تم التثبيت</span>';
+                matchedPairs.add(selectedTerm);
+                correctCount++;
+            } else {
+                selectedDefElement.classList.add('wrong');
+                feedback.innerHTML = '<span class="text-red-600 font-bold"> تطابق خاطئ!</span>';
+                setTimeout(() => {
+                    selectedDefElement.classList.remove('wrong', 'selected');
+                    selectedDef = null; selectedDefElement = null;
+                    feedback.innerHTML = '';
+                    document.getElementById('match-status').textContent = '';
+                    document.getElementById('btn-confirm').style.display = 'none';
+                    document.getElementById('btn-cancel').style.display = 'none';
+                }, 800);
+                return;
+            }
+            
+            selectedTerm = null; selectedTermElement = null; selectedDef = null; selectedDefElement = null;
+            document.getElementById('btn-confirm').style.display = 'none';
+            document.getElementById('btn-cancel').style.display = 'none';
+            document.getElementById('match-status').textContent = '';
+            document.querySelectorAll('.match-item').forEach(item => { if (!item.classList.contains('matched')) item.classList.remove('selected'); });
+            updateScore();
+        }
+
+        function cancelSelection() {
+            if (selectedTermElement) selectedTermElement.classList.remove('selected');
+            if (selectedDefElement) selectedDefElement.classList.remove('selected');
+            selectedTerm = null; selectedTermElement = null; selectedDef = null; selectedDefElement = null;
+            document.getElementById('btn-confirm').style.display = 'none';
+            document.getElementById('btn-cancel').style.display = 'none';
+            document.getElementById('match-status').textContent = '';
+            document.getElementById('match-feedback').innerHTML = '';
+            document.querySelectorAll('.match-item').forEach(item => item.classList.remove('selected'));
+        }
+
+        function updateScore() {
+            const totalAnswered = answeredTF.size + answeredMCQ.size + matchedPairs.size;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            
+            const scoreDisplay = document.getElementById('print-score-val');
+            if(scoreDisplay) scoreDisplay.textContent = correctCount;
+            const percentDisplay = document.getElementById('print-percent');
+            if(percentDisplay) percentDisplay.textContent = percentage;
+        }
+
+        function resetAll() {
+            correctCount = 0;
+            answeredTF.clear(); answeredMCQ.clear(); matchedPairs.clear();
+            selectedTerm = null; selectedTermElement = null; selectedDef = null; selectedDefElement = null;
+            
+            document.querySelectorAll('.btn-answer, .btn-option').forEach(btn => btn.classList.remove('active', 'correct', 'wrong'));
+            document.querySelectorAll('.feedback-icon').forEach(icon => { icon.innerHTML = ''; icon.classList.remove('show', 'text-green-600', 'text-red-600'); });
+            document.querySelectorAll('.question-box, [data-correct]').forEach(box => box.classList.remove('bg-green-50', 'bg-red-50'));
+            
+            document.querySelectorAll('#terms-column .match-item').forEach((item, i) => {
+                item.classList.remove('selected', 'matched');
+                item.onclick = function() { selectTerm(this); };
+            });
+            document.querySelectorAll('#definitions-column .match-item').forEach((item, i) => {
+                item.classList.remove('selected', 'matched', 'wrong');
+                item.onclick = function() { selectDef(this); };
+            });
+            
+            document.getElementById('match-feedback').innerHTML = '';
+            document.getElementById('match-status').textContent = '';
+            document.getElementById('btn-confirm').style.display = 'none';
+            document.getElementById('btn-cancel').style.display = 'none';
+            document.querySelectorAll('.interactive-input').forEach(input => input.value = '');
+            document.querySelectorAll('.student-input').forEach(input => input.value = '');
+        }
+
+        // Print Preparation
+        window.onbeforeprint = function() {
+            document.getElementById('print-score-val').textContent = correctCount;
+            document.getElementById('print-percent').textContent = Math.round((correctCount / totalQuestions) * 100);
+            
+            const nameInput = document.querySelector('input[placeholder="اكتب اسمك هنا..."]');
+            if(nameInput) document.getElementById('print-student-name').textContent = nameInput.value || '---';
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.question-box, [data-correct]').forEach(box => {
+                box.addEventListener('mouseenter', () => {
+                    const qNum = Array.from(document.querySelectorAll('.question-box, [data-correct]')).indexOf(box) + 1;
+                    const isTF = box.classList.contains('question-box');
+                    if (!(isTF ? answeredTF.has(qNum) : answeredMCQ.has(qNum))) box.style.transform = 'translateX(-4px)';
+                });
+                box.addEventListener('mouseleave', () => box.style.transform = 'translateX(0)');
+            });
+        });
+    </script>
+</body>
+</html>
+
