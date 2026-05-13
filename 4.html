@@ -11,12 +11,14 @@
     <style>
         :root {
             --primary: #1a237e;
+            --secondary: #283593;
             --accent: #d4af37;
             --accent-hover: #b8962d;
             --bg-slide: #ffffff;
             --text-dark: #1e293b;
             --text-light: #64748b;
-            --glass-dark: rgba(15, 23, 42, 0.8);
+            --glass-dark: rgba(15, 23, 42, 0.85);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,55 +41,94 @@
             box-shadow: 0 0 100px rgba(0,0,0,0.5);
             display: none;
             flex-direction: column;
-            padding: 50px 80px;
-            border-radius: 12px;
-            animation: slideFade 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px 60px;
+            border-radius: 16px;
+            animation: slideFade 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
         }
 
         .slide-container.active { display: flex; }
 
         @keyframes slideFade {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* تنسيق شريحة العنوان */
-        .title-layout { text-align: center; justify-content: center; height: 100%; display: flex; flex-direction: column; align-items: center; }
-        .edu-logo { width: 420px; margin-bottom: 30px; }
-        .main-title { font-size: 90px; color: var(--primary); font-family: 'Cairo'; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
-        .teacher-badge { background: var(--primary); color: white; padding: 15px 50px; border-radius: 100px; font-size: 32px; border: 4px solid var(--accent); margin-top: 20px; }
+        /* الزخارف الخلفية */
+        .bg-decoration {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(26, 35, 126, 0.05) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* شريحة العنوان */
+        .title-layout { text-align: center; justify-content: center; height: 100%; display: flex; flex-direction: column; align-items: center; z-index: 1; }
+        .edu-logo { width: 380px; margin-bottom: 25px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
+        .main-title { font-size: 85px; color: var(--primary); font-family: 'Cairo'; font-weight: 900; line-height: 1.1; margin-bottom: 15px; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); }
+        .teacher-badge { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 18px 60px; border-radius: 100px; font-size: 32px; border: 4px solid var(--accent); margin-top: 25px; box-shadow: 0 10px 20px rgba(26, 35, 126, 0.3); }
 
         /* ترويسة الشرائح */
-        .slide-header { border-right: 12px solid var(--accent); padding-right: 25px; margin-bottom: 35px; }
-        .slide-header h2 { font-size: 50px; color: var(--primary); font-family: 'Cairo'; font-weight: 800; }
+        .slide-header { border-right: 10px solid var(--accent); padding-right: 25px; margin-bottom: 30px; position: relative; z-index: 1; }
+        .slide-header h2 { font-size: 48px; color: var(--primary); font-family: 'Cairo'; font-weight: 800; }
 
-        /* المحتوى */
-        .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; flex-grow: 1; margin-bottom: 20px; }
-        .term-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px; padding: 25px; position: relative; }
-        .term-card h3 { font-size: 38px; color: var(--primary); margin-bottom: 8px; font-weight: 900; }
-        .term-card p { font-size: 26px; color: var(--text-dark); line-height: 1.4; font-weight: 500; }
-        .term-card i { font-size: 32px; color: var(--accent); margin-bottom: 12px; display: block; }
+        /* المحتوى والشبكة */
+        .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; z-index: 1; }
+        .term-card { 
+            background: white; 
+            border: 1px solid #edf2f7; 
+            border-radius: 24px; 
+            padding: 25px; 
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+        .term-card:hover { transform: translateY(-5px) scale(1.02); border-color: var(--accent); }
+        
+        .illustration-box {
+            width: 100px;
+            height: 100px;
+            background: #f1f5f9;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .illustration-box svg { width: 60px; height: 60px; }
+
+        .term-content h3 { font-size: 32px; color: var(--primary); margin-bottom: 5px; font-weight: 900; }
+        .term-content p { font-size: 22px; color: var(--text-dark); line-height: 1.5; font-weight: 500; }
 
         /* الشرائح الفاصلة */
-        .section-slide { background: var(--primary); color: white; text-align: center; justify-content: center; }
-        .section-slide h2 { font-size: 100px; font-family: 'Cairo'; color: #fff; }
-        .section-slide hr { width: 180px; height: 8px; background: var(--accent); border: none; margin: 35px auto; }
+        .section-slide { background: var(--primary); color: white; text-align: center; justify-content: center; position: relative; }
+        .section-slide::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
+        .section-slide h2 { font-size: 90px; font-family: 'Cairo'; color: #fff; z-index: 1; position: relative; }
+        .section-slide hr { width: 150px; height: 6px; background: var(--accent); border: none; margin: 30px auto; z-index: 1; position: relative; }
 
         /* الجداول */
-        .table-wrap { width: 100%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .table-wrap { width: 100%; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); z-index: 1; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: var(--primary); color: white; padding: 20px; font-size: 30px; text-align: right; }
-        td { background: white; padding: 20px; font-size: 26px; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+        th { background: var(--primary); color: white; padding: 25px; font-size: 28px; text-align: right; }
+        td { background: white; padding: 22px; font-size: 24px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: var(--text-dark); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background-color: #fafafa; }
 
-        /* نظام التحكم بالأطراف */
+        /* نظام التحكم */
         .side-nav {
             position: fixed;
             bottom: 30px;
-            width: calc(100% - 60px);
+            width: calc(100% - 80px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 30px;
+            padding: 0 40px;
             z-index: 1000;
             pointer-events: none;
         }
@@ -97,94 +138,82 @@
             background: var(--accent); 
             color: var(--primary); 
             border: none; 
-            width: 75px; 
-            height: 75px; 
-            border-radius: 20px; 
+            width: 70px; 
+            height: 70px; 
+            border-radius: 50%; 
             cursor: pointer; 
-            font-size: 32px; 
+            font-size: 28px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
         }
 
-        .nav-btn:hover:not(:disabled) { 
-            transform: translateY(-5px);
-            background: #fff;
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
-        }
-
-        .nav-btn:disabled {
-            background: #334155;
-            color: #64748b;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
+        .nav-btn:hover:not(:disabled) { background: #fff; transform: scale(1.1); }
+        .nav-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; opacity: 0.6; }
 
         .center-counter {
             pointer-events: auto;
             background: var(--glass-dark);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             color: white;
-            padding: 10px 30px;
-            border-radius: 50px;
+            padding: 12px 35px;
+            border-radius: 100px;
             font-family: 'Cairo';
             font-weight: 700;
             font-size: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
         }
 
-        /* شاشة رقم الشريحة بالزاوية العلوية */
         .floating-info {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(212, 175, 55, 0.9);
+            top: 25px;
+            left: 25px;
+            background: var(--accent);
             color: var(--primary);
-            padding: 5px 15px;
-            border-radius: 5px;
+            padding: 6px 18px;
+            border-radius: 8px;
             font-weight: 800;
-            font-size: 16px;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .slide-footer { margin-top: auto; border-top: 2px solid #f1f5f9; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .slide-footer { margin-top: auto; border-top: 2px solid #f1f5f9; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1; }
         .footer-text { font-size: 18px; color: var(--text-light); font-weight: 700; }
+
+        /* رسومات توضيحية SVG مخصصة */
+        .icon-accent { fill: var(--accent); }
+        .icon-primary { fill: var(--primary); }
 
     </style>
 </head>
 <body>
 
+    <div class="bg-decoration"></div>
     <div class="floating-info" id="topCounter">1 / 10</div>
 
-    <!-- نظام التنقل بالأطراف -->
     <div class="side-nav">
-        <!-- زر السابق يمين (للوصول للشريحة السابقة) -->
-        <button class="nav-btn" id="btnPrev" onclick="prevSlide()">
+        <button class="nav-btn" id="btnPrev" onclick="prevSlide()" title="السابق">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
-
-        <!-- عداد الوسط -->
         <div class="center-counter" id="counter">الشريحة 1 من 10</div>
-
-        <!-- زر التالي يسار (للانتقال للشريحة التالية) -->
-        <button class="nav-btn" id="btnNext" onclick="nextSlide()">
+        <button class="nav-btn" id="btnNext" onclick="nextSlide()" title="التالي">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
     </div>
 
-    <!-- شريحة 1: العنوان المعدل -->
+    <!-- شريحة 1: العنوان -->
     <div class="slide-container active" id="slide1">
         <div class="title-layout">
             <img src="https://upload.wikimedia.org/wikipedia/ar/1/17/Saudi_Ministry_of_Education_Logo_2025.png" class="edu-logo" alt="وزارة التعليم">
             <h1 class="main-title">مسرد المصطلحات</h1>
-            <p style="font-size: 32px; color: var(--text-light);">مادة العلوم للصف الثالث متوسط</p>
+            <p style="font-size: 36px; color: var(--text-light); font-weight: 700;">مادة العلوم للصف الثالث متوسط</p>
             <div class="teacher-badge">إعداد المعلم: محمد عندوس القحطاني</div>
         </div>
         <div class="slide-footer">
-            <span class="footer-text">1447هـ - 2026م</span>
-            <span class="footer-text">وزارة التعليم - المملكة العربية السعودية</span>
+            <span class="footer-text">الفصل الدراسي الثاني - 1447هـ</span>
+            <span class="footer-text">المملكة العربية السعودية</span>
         </div>
     </div>
 
@@ -192,62 +221,100 @@
     <div class="slide-container section-slide" id="slide2">
         <hr>
         <h2>الفيزياء والقوة</h2>
-        <p style="font-size: 35px; color: var(--accent);">ميكانيكا الأجسام وقوانين الحركة</p>
+        <p style="font-size: 38px; color: var(--accent); font-weight: 700;">دراسة الحركة ومسبباتها</p>
+        <div style="margin-top: 40px; opacity: 0.2;">
+            <i class="fa-solid fa-gear fa-spin fa-5x"></i>
+        </div>
     </div>
 
-    <!-- شريحة 3: الحركة -->
+    <!-- شريحة 3: الحركة مع رسومات -->
     <div class="slide-container" id="slide3">
         <div class="slide-header">
             <h2>مفاهيم الإزاحة والتسارع</h2>
         </div>
         <div class="terms-grid">
             <div class="term-card">
-                <i class="fa-solid fa-arrows-left-right"></i>
-                <h3>الإزاحة</h3>
-                <p>البعد بين نقطة بداية مرجعية ونقطة نهاية واتجاه الحركة.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <path class="icon-primary" d="M20,50 L80,50" stroke-width="4" stroke="currentColor"/>
+                        <circle class="icon-accent" cx="20" cy="50" r="8"/>
+                        <circle class="icon-primary" cx="80" cy="50" r="8"/>
+                        <path class="icon-accent" d="M70,40 L82,50 L70,60" fill="none" stroke-width="4" stroke="currentColor"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>الإزاحة</h3>
+                    <p>البعد المستقيم بين نقطة البداية ونقطة النهاية مع تحديد الاتجاه.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-gauge-high"></i>
-                <h3>التسارع</h3>
-                <p>ناتج قسمة السرعة المتجهة على الزمن اللازم لتغير قيمتها.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <path class="icon-primary" d="M10,80 Q50,80 90,20" fill="none" stroke-width="5" stroke="currentColor"/>
+                        <circle class="icon-accent" cx="90" cy="20" r="10"/>
+                        <path class="icon-primary" d="M50,90 L50,70 M70,90 L70,50" stroke-width="3" stroke="currentColor"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>التسارع</h3>
+                    <p>التغير في السرعة المتجهة مقسوماً على الزمن.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-weight-hanging"></i>
-                <h3>الزخم</h3>
-                <p>مقياس لمدى الصعوبة في إيقاف جسم متحرك (الكتلة × السرعة).</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <rect class="icon-primary" x="20" y="30" width="40" height="40" rx="5"/>
+                        <path class="icon-accent" d="M65,50 L90,50 M80,40 L90,50 L80,60" stroke-width="5" stroke="currentColor"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>الزخم</h3>
+                    <p>خاصية للجسم المتحرك تعتمد على كتلته وسرعته.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-bolt"></i>
-                <h3>القوة</h3>
-                <p>سحب أو دفع يؤثر في الأجسام ويغير من حالتها الحركية.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <circle class="icon-primary" cx="50" cy="50" r="30" fill="none" stroke-width="5" stroke="currentColor"/>
+                        <path class="icon-accent" d="M10,50 L40,50 M30,40 L40,50 L30,60" stroke-width="5" stroke="currentColor"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>القوة</h3>
+                    <p>مؤثر يغير من حالة الجسم الحركية (دفع أو سحب).</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- شريحة 4: القوانين -->
+    <!-- شريحة 4: القوانين التوضيحية -->
     <div class="slide-container" id="slide4">
         <div class="slide-header">
-            <h2>قوانين نيوتن الكبرى</h2>
+            <h2>قوانين نيوتن للحركة</h2>
         </div>
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
-                        <th>القانون</th>
-                        <th>النص العلمي الرسمي</th>
+                        <th width="30%">القانون</th>
+                        <th>التوضيح البياني</th>
+                        <th width="40%">المفهوم</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>القانون الأول</td>
-                        <td>الجسم الساكن يبقى ساكناً ما لم تؤثر عليه قوة خارجية تغير حالته.</td>
+                        <td><strong>الأول (القصور)</strong></td>
+                        <td align="center"><i class="fa-solid fa-hand-back-fist var-accent" style="color:var(--accent); font-size: 35px;"></i></td>
+                        <td>الجسم الساكن يبقى ساكناً ما لم تؤثر عليه قوة.</td>
                     </tr>
                     <tr>
-                        <td>القانون الثاني</td>
-                        <td>التسارع يساوي ناتج قسمة القوة المحصلة على كتلة الجسم.</td>
+                        <td><strong>الثاني (التسارع)</strong></td>
+                        <td align="center" style="font-family: 'Cairo'; color: var(--primary); font-weight: 900; font-size: 28px;">F = m × a</td>
+                        <td>القوة تساوي الكتلة مضروبة في التسارع.</td>
                     </tr>
                     <tr>
-                        <td>القانون الثالث</td>
+                        <td><strong>الثالث (الفعل)</strong></td>
+                        <td align="center"><i class="fa-solid fa-arrows-left-right" style="color:var(--accent); font-size: 35px;"></i></td>
                         <td>لكل فعل رد فعل مساوٍ له في المقدار ومعاكس له في الاتجاه.</td>
                     </tr>
                 </tbody>
@@ -256,108 +323,157 @@
     </div>
 
     <!-- شريحة 5: فاصل الكيمياء -->
-    <div class="slide-container section-slide" style="background: #064e3b;" id="slide5">
+    <div class="slide-container section-slide" style="background: #004d40;" id="slide5">
         <hr>
         <h2>الكيمياء والمادة</h2>
-        <p style="font-size: 35px; color: #34d399;">بناء الذرة والروابط الكيميائية</p>
+        <p style="font-size: 38px; color: #80cbc4; font-weight: 700;">أسرار الذرة والروابط</p>
     </div>
 
-    <!-- شريحة 6: الكيمياء 1 -->
+    <!-- شريحة 6: الكيمياء مع رسومات -->
     <div class="slide-container" id="slide6">
         <div class="slide-header">
-            <h2>الذرة والروابط</h2>
+            <h2>بناء المادة</h2>
         </div>
         <div class="terms-grid">
             <div class="term-card">
-                <i class="fa-solid fa-atom"></i>
-                <h3>الأيون</h3>
-                <p>ذرة مشحونة بشحنة كهربائية موجبة أو سالبة نتيجة فقدها أو كسبها إلكترونات.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="15" class="icon-primary"/>
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="#ccc" stroke-dasharray="4"/>
+                        <circle cx="85" cy="50" r="6" class="icon-accent"/>
+                        <text x="82" y="42" font-size="12" font-weight="bold">-</text>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>الأيون</h3>
+                    <p>ذرة فقدت أو كسبت إلكتروناً فأصبحت تحمل شحنة.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-vial"></i>
-                <h3>الجزيء</h3>
-                <p>جسيمات متعادلة تتكون عندما تتشارك الذرات بالإلكترونات.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="35" cy="50" r="20" class="icon-primary" opacity="0.8"/>
+                        <circle cx="65" cy="50" r="20" class="icon-primary" opacity="0.8"/>
+                        <circle cx="50" cy="50" r="5" class="icon-accent"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>الجزيء</h3>
+                    <p>جسيم ناتج عن اتحاد ذرتين أو أكثر بروابط تساهمية.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-link"></i>
-                <h3>الرابطة الأيونية</h3>
-                <p>الرابطة الكيميائية التي تنشأ بين أيونين شحنتهما مختلفة.</p>
+                <div class="illustration-box">
+                    <i class="fa-solid fa-vial-circle-check" style="font-size: 50px; color: var(--primary);"></i>
+                </div>
+                <div class="term-content">
+                    <h3>المتفاعلات</h3>
+                    <p>المواد التي نبدأ بها التفاعل الكيميائي وتتغير خصائصها.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-dna"></i>
-                <h3>الإنزيمات</h3>
-                <p>بروتينات تنظم التفاعلات الكيميائية في الخلية دون أن تتغير.</p>
+                <div class="illustration-box">
+                    <i class="fa-solid fa-temperature-arrow-up" style="font-size: 50px; color: #e53935;"></i>
+                </div>
+                <div class="term-content">
+                    <h3>طارد للحرارة</h3>
+                    <p>تفاعل كيميائي يحرر طاقة حرارية إلى الوسط المحيط.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- شريحة 7: فاصل الكهرباء -->
-    <div class="slide-container section-slide" style="background: #78350f;" id="slide7">
+    <div class="slide-container section-slide" style="background: #3e2723;" id="slide7">
         <hr>
         <h2>الكهرباء والمغناطيسية</h2>
-        <p style="font-size: 35px; color: #fbbf24;">تدفق الطاقة والدوائر الكهربائية</p>
+        <p style="font-size: 38px; color: #ffca28; font-weight: 700;">تدفق الشحنات والمجالات</p>
     </div>
 
     <!-- شريحة 8: الكهرباء -->
     <div class="slide-container" id="slide8">
         <div class="slide-header">
-            <h2>الكميات الكهربائية</h2>
+            <h2>الكميات والدوائر</h2>
         </div>
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
-                        <th>الكمية</th>
-                        <th>التعريف العلمي</th>
+                        <th>المفهوم</th>
+                        <th>الرمز</th>
+                        <th>الرسم التوضيحي</th>
                         <th>الوحدة</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>التيار</td>
-                        <td>تدفق الشحنات الكهربائية في الموصل بشكل متواصل.</td>
+                        <td><strong>التيار الكهربائي</strong></td>
+                        <td>I</td>
+                        <td align="center"><i class="fa-solid fa-ellipsis-h fa-beat" style="color:#2196f3;"></i></td>
                         <td>أمبير (A)</td>
                     </tr>
                     <tr>
-                        <td>المقاومة</td>
-                        <td>مقياس مدى صعوبة انتقال الإلكترونات في المادة.</td>
-                        <td>أوم (Ω)</td>
+                        <td><strong>الجهد الكهربائي</strong></td>
+                        <td>V</td>
+                        <td align="center"><i class="fa-solid fa-battery-full" style="color:#4caf50;"></i></td>
+                        <td>فولت (V)</td>
                     </tr>
                     <tr>
-                        <td>الجهد</td>
-                        <td>طاقة الوضع الكهربائية المسببة لحركة الشحنات.</td>
-                        <td>فولت (V)</td>
+                        <td><strong>المقاومة</strong></td>
+                        <td>R</td>
+                        <td align="center"><i class="fa-solid fa-zigzag" style="color:#f44336;"></i> <svg width="40" height="20"><path d="M0 10 L10 10 L15 0 L25 20 L30 10 L40 10" fill="none" stroke="red" stroke-width="2"/></svg></td>
+                        <td>أوم (Ω)</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- شريحة 9: التطبيقات -->
+    <!-- شريحة 9: المغناطيسية -->
     <div class="slide-container" id="slide9">
         <div class="slide-header">
-            <h2>الأجهزة الكهرومغناطيسية</h2>
+            <h2>المغناطيسية والمحركات</h2>
         </div>
         <div class="terms-grid">
             <div class="term-card">
-                <i class="fa-solid fa-plug"></i>
-                <h3>المحرك الكهربائي</h3>
-                <p>أداة تقوم بتحويل الطاقة الكهربائية إلى طاقة حركية.</p>
+                <div class="illustration-box">
+                    <svg viewBox="0 0 100 100">
+                        <rect x="20" y="40" width="30" height="20" fill="red"/>
+                        <rect x="50" y="40" width="30" height="20" fill="blue"/>
+                        <path d="M10,20 Q50,0 90,20 M10,80 Q50,100 90,80" fill="none" stroke="#ccc" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="term-content">
+                    <h3>المجال المغناطيسي</h3>
+                    <p>المنطقة المحيطة بالمغناطيس التي تظهر فيها قوته.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-bolt-lightning"></i>
-                <h3>المولد الكهربائي</h3>
-                <p>جهاز يقوم بتحويل الطاقة الحركية إلى طاقة كهربائية.</p>
+                <div class="illustration-box">
+                    <i class="fa-solid fa-rotate" style="font-size: 50px; color: var(--primary);"></i>
+                </div>
+                <div class="term-content">
+                    <h3>المحرك الكهربائي</h3>
+                    <p>جهاز يحول الطاقة الكهربائية إلى طاقة حركية دورانية.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-magnet"></i>
-                <h3>المجال المغناطيسي</h3>
-                <p>المنطقة المحيطة بالمغناطيس التي تظهر فيها آثار قوته.</p>
+                <div class="illustration-box">
+                    <i class="fa-solid fa-bolt" style="font-size: 50px; color: var(--accent);"></i>
+                </div>
+                <div class="term-content">
+                    <h3>المولد الكهربائي</h3>
+                    <p>جهاز يحول الطاقة الحركية إلى طاقة كهربائية.</p>
+                </div>
             </div>
             <div class="term-card">
-                <i class="fa-solid fa-circle-nodes"></i>
-                <h3>الدائرة الكهربائية</h3>
-                <p>حلقة مغلقة يتدفق خلالها التيار بشكل متواصل.</p>
+                <div class="illustration-box">
+                    <i class="fa-solid fa-diagram-project" style="font-size: 50px; color: var(--text-light);"></i>
+                </div>
+                <div class="term-content">
+                    <h3>الدائرة الكهربائية</h3>
+                    <p>مسار مغلق يتدفق خلاله التيار الكهربائي باستمرار.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -365,15 +481,14 @@
     <!-- شريحة 10: الختام -->
     <div class="slide-container" id="slide10">
         <div class="title-layout">
-            <h2 style="font-size: 70px; color: var(--primary); font-family: 'Cairo';">انتهى العرض</h2>
-            <p style="font-size: 30px; color: var(--text-light); margin-bottom: 30px;">تمنياتي لكم بالتوفيق في دراستكم</p>
-            <div class="teacher-badge" style="background: var(--accent); color: var(--primary);">
-                أ / محمد عندوس القحطاني
-            </div>
+            <i class="fa-solid fa-graduation-cap fa-5x" style="color: var(--accent); margin-bottom: 20px;"></i>
+            <h2 style="font-size: 75px; color: var(--primary); font-family: 'Cairo';">انتهى عرض المفاهيم</h2>
+            <p style="font-size: 32px; color: var(--text-light); margin-top: 10px;">نتمنى لكم رحلة تعليمية ممتعة وموفقة</p>
+            <div class="teacher-badge">مع تحيات الأستاذ: محمد القحطاني</div>
         </div>
         <div class="slide-footer">
-            <span class="footer-text">مادة العلوم 2026</span>
-            <span class="footer-text">شكراً للمتابعة</span>
+            <span class="footer-text">علوم - الصف الثالث متوسط</span>
+            <span class="footer-text">تم بحمد الله</span>
         </div>
     </div>
 
